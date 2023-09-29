@@ -1,0 +1,50 @@
+﻿@using Azure.Storage.Blobs.Models;
+@using AzureBlobStorage.Data;
+@using Microsoft.AspNetCore.Http;
+@using static AzureBlobStorage.Pages.CopyDialog;
+@inject BlobService Service
+<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center">
+    <RadzenTemplateForm TItem="BlobContainerListItem" Data=@model Submit=@OnSubmit>
+        <RadzenStack Gap="1rem">
+            <RadzenFormField Variant="Variant.Text">
+                <ChildContent>
+                    <InputFile OnChange="@UploadChanges"></InputFile>
+                </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenDropDown Placeholder="Select container" @bind-Value="@model.DestinationContainerName" Name="ContainerName" Data="@BlobContainerNames" ValueProperty="ContainerName" TextProperty="ContainerName" Multiple="false" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="ContainerName" Text="Required" />
+                </Helper>
+            </RadzenFormField>
+            <RadzenStack AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center">
+                <RadzenButton ButtonType="ButtonType.Submit" Text="Upload" />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenStack>
+
+@code {
+    [Parameter]
+    public DialogArgs args { get; set; }
+    BlobContainerListItem model { get; set; }
+    IEnumerable<BlobContainerListItem>? BlobContainerNames;
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = new BlobContainerListItem();
+        BlobContainerNames = await Service.GetAllContainers();
+    }
+    async Task OnSubmit(BlobContainerListItem model)
+    {
+        await Service.UploadFile(model.DestinationContainerName, model.File);
+        await args.Callback.InvokeAsync();
+    }
+    public void UploadChanges(InputFileChangeEventArgs file)
+    {
+        model.FileName = file.File.Name;
+        model.File = file.File;
+    }
+}

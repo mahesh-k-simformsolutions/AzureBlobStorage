@@ -1,0 +1,52 @@
+﻿@using Azure.Storage.Blobs.Models;
+@using AzureBlobStorage.Data;
+@inject BlobService Service
+<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center">
+    <RadzenTemplateForm TItem="BlobContainerListItem" Data=@model Submit=@OnSubmit>
+        <RadzenStack Gap="1rem">
+            <RadzenFormField Text="File Name" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenTextBox @bind-Value="@model.FileName" Disabled="true" />
+                </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Style="width:100%" Variant="Variant.Text">
+                <ChildContent>
+                    <RadzenDropDown Placeholder="Select destination" @bind-Value="@model.DestinationContainerName" Name="ContainerName" Data="@BlobContainerNames" ValueProperty="ContainerName" TextProperty="ContainerName" Multiple="false" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="ContainerName" Text="Required" />
+                </Helper>
+            </RadzenFormField>
+            <RadzenStack AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center"><RadzenButton ButtonType="ButtonType.Submit" Text="Copy" /></RadzenStack>
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenStack>
+
+@code {
+    [Parameter]
+    public DialogArgs args { get; set; }
+
+    BlobContainerListItem model { get; set; }
+    IEnumerable<BlobContainerListItem>? BlobContainerNames;
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = new BlobContainerListItem();
+        model.FileName = args?.FileName;
+        model.ContainerName = args?.ContainerName;
+        var list = await Service.GetAllContainers();
+        BlobContainerNames = list.Where(x => x.ContainerName != args.ContainerName);
+    }
+    async Task OnSubmit(BlobContainerListItem model)
+    {
+        await Service.Copy(model);
+        await args.Callback.InvokeAsync();
+    }
+
+    public class DialogArgs
+    {
+        public string FileName { get; set; }
+        public string ContainerName { get; set; }
+        public EventCallback Callback { get; set; }
+    }
+}

@@ -1,0 +1,77 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\Mahesh.Kantariya\\Desktop\\Demos\\AzureBlobStorage\\AzureBlobStorage.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\Mahesh.Kantariya\\Desktop\\Demos\\AzureBlobStorage\\AzureBlobStorage.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Mahesh.Kantariya\\Desktop\\Demos\\AzureBlobStorage\\AzureBlobStorage.csproj",
+        "projectName": "AzureBlobStorage",
+        "projectPath": "C:\\Users\\Mahesh.Kantariya\\Desktop\\Demos\\AzureBlobStorage\\AzureBlobStorage.csproj",
+        "packagesPath": "C:\\Users\\Mahesh.Kantariya\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Mahesh.Kantariya\\Desktop\\Demos\\AzureBlobStorage\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Mahesh.Kantariya\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Users\\Mahesh.Kantariya\\source\\repos\\GenericRepositoryService\\GenericRepoService\\bin\\Release": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Azure.Storage.Blobs": {
+              "target": "Package",
+              "version": "[12.18.0, )"
+            },
+            "Radzen.Blazor": {
+              "target": "Package",
+              "version": "[4.16.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

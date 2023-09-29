@@ -1,0 +1,96 @@
+﻿@page "/"
+@using AzureBlobStorage.Data
+@using System.Net;
+@using static AzureBlobStorage.Pages.CopyDialog;
+@inject BlobService Service
+@inject DialogService DialogService
+@inject NotificationService NService
+@inject NavigationManager NavigationManager
+<PageTitle>List</PageTitle>
+
+@if (list == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
+        <RadzenButton Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="add" class="m-1" Click=@(() => Upload()) Text="Upload" />
+    </RadzenStack>
+    <RadzenDataGrid AllowFiltering="false" AllowPaging="false" PageSize="100" AllowSorting="false"
+                    Data="@list" TItem="BlobContainerListItem" ColumnWidth="150px">
+        <Columns>
+            <RadzenDataGridColumn TItem="BlobContainerListItem" Property="FileName" Title="Document" />
+            <RadzenDataGridColumn TItem="BlobContainerListItem" Property="ContainerName" Title="Container" />
+            <RadzenDataGridColumn TItem="BlobContainerListItem" Width="120px">
+                <Template Context="data">
+                    <RadzenButton Size="ButtonSize.ExtraSmall" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" class="m-1" Click=@(() => OpenCopy(data.FileName, data.ContainerName)) Text="Copy" />
+                    <RadzenButton Size="ButtonSize.ExtraSmall" ButtonStyle="ButtonStyle.Info" Variant="Variant.Flat" class="m-1" Click=@(() => Download(data.FileName, data.ContainerName)) Text="Download" />
+                    <RadzenButton Size="ButtonSize.ExtraSmall" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" class="m-1" Click=@(() => Delete(data.FileName, data.ContainerName)) Text="Delete" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@code {
+    private List<BlobContainerListItem> list;
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        list = await Service.GetAll();
+    }
+    public async Task Download(string fileName, string containerName)
+    {
+       var fileContent = await Service.Download(containerName, fileName);
+        await JSRuntime.InvokeVoidAsync("BlazorDownloadFile.saveStringAsFile", fileName, fileContent);
+    }
+    public async Task Delete(string fileName, string containerName)
+    {
+        var response = await Service.Delete(containerName, fileName);
+        if (response)
+        {
+            list = await Service.GetAll();
+            NService.Notify(NotificationSeverity.Success, "File deleted");
+        }
+    }
+    dynamic dialog1;
+    dynamic dialog2;
+    public async Task OpenCopy(string fileName, string containerName)
+    {
+        var args = new DialogArgs()
+            {
+                FileName = fileName,
+                ContainerName = containerName,
+                Callback = new EventCallback(this, async () =>
+                {
+                    DialogService.Close(dialog1);
+                    list = await Service.GetAll();
+                    NService.Notify(NotificationSeverity.Success, "File copied");
+                }),
+            };
+
+        dialog1 = await DialogService.OpenAsync<CopyDialog>($"Copy",
+               new Dictionary<string, object>() { { "args", args } },
+               new DialogOptions() { Width = "50%", Height = "auto", Draggable = true, CloseDialogOnOverlayClick = true });
+
+    }
+    public async Task Upload()
+    {
+        var args = new DialogArgs()
+            {
+                Callback = new EventCallback(this, async () =>
+                {
+                    DialogService.Close(dialog2);
+                    list = await Service.GetAll();
+                    NService.Notify(NotificationSeverity.Success, "File uploaded");
+                }),
+            };
+
+        dialog2 = await DialogService.OpenAsync<UploadDialog>($"Upload",
+               new Dictionary<string, object>() { { "args", args } },
+               new DialogOptions() { Width = "50%", Height = "auto", Draggable = true, CloseDialogOnOverlayClick = true });
+    }
+
+}
